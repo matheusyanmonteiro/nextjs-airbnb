@@ -11,10 +11,19 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  ValidateNested,
+  IsNumber,
+} from "class-validator";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
+import { Type } from "class-transformer";
 import { IsJSONValue } from "@app/custom-validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { InputJsonValue } from "../../types";
+import { TripUpdateManyWithoutListingsInput } from "./TripUpdateManyWithoutListingsInput";
+import { WhishlistUpdateManyWithoutListingsInput } from "./WhishlistUpdateManyWithoutListingsInput";
 
 @InputType()
 class ListingUpdateInput {
@@ -27,7 +36,19 @@ class ListingUpdateInput {
   @Field(() => String, {
     nullable: true,
   })
-  listingCreatedBy?: string;
+  description?: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @IsOptional()
+  @Field(() => UserWhereUniqueInput, {
+    nullable: true,
+  })
+  listingCreatedBy?: UserWhereUniqueInput;
 
   @ApiProperty({
     required: false,
@@ -100,6 +121,52 @@ class ListingUpdateInput {
     nullable: true,
   })
   placeType?: string;
+
+  @ApiProperty({
+    required: false,
+    type: Number,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Field(() => Number, {
+    nullable: true,
+  })
+  price?: number;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  title?: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => TripUpdateManyWithoutListingsInput,
+  })
+  @ValidateNested()
+  @Type(() => TripUpdateManyWithoutListingsInput)
+  @IsOptional()
+  @Field(() => TripUpdateManyWithoutListingsInput, {
+    nullable: true,
+  })
+  trips?: TripUpdateManyWithoutListingsInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => WhishlistUpdateManyWithoutListingsInput,
+  })
+  @ValidateNested()
+  @Type(() => WhishlistUpdateManyWithoutListingsInput)
+  @IsOptional()
+  @Field(() => WhishlistUpdateManyWithoutListingsInput, {
+    nullable: true,
+  })
+  whishlists?: WhishlistUpdateManyWithoutListingsInput;
 }
 
 export { ListingUpdateInput as ListingUpdateInput };

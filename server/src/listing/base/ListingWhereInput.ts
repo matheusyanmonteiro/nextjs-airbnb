@@ -13,11 +13,26 @@ import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { StringFilter } from "../../util/StringFilter";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsOptional, ValidateNested } from "class-validator";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
 import { JsonFilter } from "../../util/JsonFilter";
+import { FloatFilter } from "../../util/FloatFilter";
+import { TripListRelationFilter } from "../../trip/base/TripListRelationFilter";
+import { WhishlistListRelationFilter } from "../../whishlist/base/WhishlistListRelationFilter";
 
 @InputType()
 class ListingWhereInput {
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  description?: StringFilter;
+
   @ApiProperty({
     required: false,
     type: StringFilter,
@@ -31,14 +46,15 @@ class ListingWhereInput {
 
   @ApiProperty({
     required: false,
-    type: StringFilter,
+    type: () => UserWhereUniqueInput,
   })
-  @Type(() => StringFilter)
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
   @IsOptional()
-  @Field(() => StringFilter, {
+  @Field(() => UserWhereUniqueInput, {
     nullable: true,
   })
-  listingCreatedBy?: StringFilter;
+  listingCreatedBy?: UserWhereUniqueInput;
 
   @ApiProperty({
     required: false,
@@ -116,6 +132,52 @@ class ListingWhereInput {
     nullable: true,
   })
   placeType?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: FloatFilter,
+  })
+  @Type(() => FloatFilter)
+  @IsOptional()
+  @Field(() => FloatFilter, {
+    nullable: true,
+  })
+  price?: FloatFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  title?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => TripListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => TripListRelationFilter)
+  @IsOptional()
+  @Field(() => TripListRelationFilter, {
+    nullable: true,
+  })
+  trips?: TripListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => WhishlistListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => WhishlistListRelationFilter)
+  @IsOptional()
+  @Field(() => WhishlistListRelationFilter, {
+    nullable: true,
+  })
+  whishlists?: WhishlistListRelationFilter;
 }
 
 export { ListingWhereInput as ListingWhereInput };
