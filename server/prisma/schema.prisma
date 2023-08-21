@@ -17,3 +17,18 @@ model User {
   updatedAt DateTime @updatedAt
   username  String   @unique
 }
+
+
+model Listing {
+  createdAt        DateTime @default(now())
+  id               String   @id @default(cuid())
+  listingCreatedBy String
+  locationData     Json
+  locationType     String
+  mapData          Json
+  photos           Json
+  placeAmeneties   Json
+  placeSpace       Json
+  placeType        String
+  updatedAt        DateTime @updatedAt
+}
