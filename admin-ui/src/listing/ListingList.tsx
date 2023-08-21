@@ -1,6 +1,14 @@
 import * as React from "react";
-import { List, Datagrid, ListProps, DateField, TextField } from "react-admin";
+import {
+  List,
+  Datagrid,
+  ListProps,
+  DateField,
+  TextField,
+  ReferenceField,
+} from "react-admin";
 import Pagination from "../Components/Pagination";
+import { USER_TITLE_FIELD } from "../user/UserTitle";
 
 export const ListingList = (props: ListProps): React.ReactElement => {
   return (
@@ -13,8 +21,15 @@ export const ListingList = (props: ListProps): React.ReactElement => {
     >
       <Datagrid rowClick="show">
         <DateField source="createdAt" label="Created At" />
+        <TextField label="description" source="description" />
         <TextField label="ID" source="id" />
-        <TextField label="listingCreatedBy" source="listingCreatedBy" />
+        <ReferenceField
+          label="listingCreatedBy"
+          source="user.id"
+          reference="User"
+        >
+          <TextField source={USER_TITLE_FIELD} />
+        </ReferenceField>
         <TextField label="locationData" source="locationData" />
         <TextField label="locationType" source="locationType" />
         <TextField label="mapData" source="mapData" />
@@ -22,6 +37,8 @@ export const ListingList = (props: ListProps): React.ReactElement => {
         <TextField label="placeAmeneties" source="placeAmeneties" />
         <TextField label="placeSpace" source="placeSpace" />
         <TextField label="placeType" source="placeType" />
+        <TextField label="price" source="price" />
+        <TextField label="title" source="title" />
         <DateField source="updatedAt" label="Updated At" />
       </Datagrid>
     </List>

@@ -1,11 +1,33 @@
 import * as React from "react";
-import { Edit, SimpleForm, EditProps, TextInput } from "react-admin";
+
+import {
+  Edit,
+  SimpleForm,
+  EditProps,
+  TextInput,
+  ReferenceInput,
+  SelectInput,
+  NumberInput,
+  ReferenceArrayInput,
+  SelectArrayInput,
+} from "react-admin";
+
+import { UserTitle } from "../user/UserTitle";
+import { TripTitle } from "../trip/TripTitle";
+import { WhishlistTitle } from "../whishlist/WhishlistTitle";
 
 export const ListingEdit = (props: EditProps): React.ReactElement => {
   return (
     <Edit {...props}>
       <SimpleForm>
-        <TextInput label="listingCreatedBy" source="listingCreatedBy" />
+        <TextInput label="description" multiline source="description" />
+        <ReferenceInput
+          source="listingCreatedBy.id"
+          reference="User"
+          label="listingCreatedBy"
+        >
+          <SelectInput optionText={UserTitle} />
+        </ReferenceInput>
         <div />
         <TextInput label="locationType" source="locationType" />
         <div />
@@ -13,6 +35,24 @@ export const ListingEdit = (props: EditProps): React.ReactElement => {
         <div />
         <div />
         <TextInput label="placeType" source="placeType" />
+        <NumberInput label="price" source="price" />
+        <TextInput label="title" source="title" />
+        <ReferenceArrayInput
+          source="trips"
+          reference="Trip"
+          parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+          format={(value: any) => value && value.map((v: any) => v.id)}
+        >
+          <SelectArrayInput optionText={TripTitle} />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput
+          source="whishlists"
+          reference="Whishlist"
+          parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+          format={(value: any) => value && value.map((v: any) => v.id)}
+        >
+          <SelectArrayInput optionText={WhishlistTitle} />
+        </ReferenceArrayInput>
       </SimpleForm>
     </Edit>
   );

@@ -11,11 +11,20 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString } from "class-validator";
+import {
+  IsDate,
+  IsString,
+  ValidateNested,
+  IsNumber,
+  IsOptional,
+} from "class-validator";
 import { Type } from "class-transformer";
+import { User } from "../../user/base/User";
 import { IsJSONValue } from "@app/custom-validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { JsonValue } from "type-fest";
+import { Trip } from "../../trip/base/Trip";
+import { Whishlist } from "../../whishlist/base/Whishlist";
 
 @ObjectType()
 class Listing {
@@ -33,7 +42,7 @@ class Listing {
   })
   @IsString()
   @Field(() => String)
-  id!: string;
+  description!: string;
 
   @ApiProperty({
     required: true,
@@ -41,7 +50,15 @@ class Listing {
   })
   @IsString()
   @Field(() => String)
-  listingCreatedBy!: string;
+  id!: string;
+
+  @ApiProperty({
+    required: true,
+    type: () => User,
+  })
+  @ValidateNested()
+  @Type(() => User)
+  listingCreatedBy?: User;
 
   @ApiProperty({
     required: true,
@@ -96,11 +113,45 @@ class Listing {
 
   @ApiProperty({
     required: true,
+    type: Number,
+  })
+  @IsNumber()
+  @Field(() => Number)
+  price!: number;
+
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @Field(() => String)
+  title!: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Trip],
+  })
+  @ValidateNested()
+  @Type(() => Trip)
+  @IsOptional()
+  trips?: Array<Trip>;
+
+  @ApiProperty({
+    required: true,
   })
   @IsDate()
   @Type(() => Date)
   @Field(() => Date)
   updatedAt!: Date;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Whishlist],
+  })
+  @ValidateNested()
+  @Type(() => Whishlist)
+  @IsOptional()
+  whishlists?: Array<Whishlist>;
 }
 
 export { Listing as Listing };

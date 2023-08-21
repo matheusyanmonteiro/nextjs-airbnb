@@ -27,6 +27,12 @@ import { ListingWhereUniqueInput } from "./ListingWhereUniqueInput";
 import { ListingFindManyArgs } from "./ListingFindManyArgs";
 import { ListingUpdateInput } from "./ListingUpdateInput";
 import { Listing } from "./Listing";
+import { TripFindManyArgs } from "../../trip/base/TripFindManyArgs";
+import { Trip } from "../../trip/base/Trip";
+import { TripWhereUniqueInput } from "../../trip/base/TripWhereUniqueInput";
+import { WhishlistFindManyArgs } from "../../whishlist/base/WhishlistFindManyArgs";
+import { Whishlist } from "../../whishlist/base/Whishlist";
+import { WhishlistWhereUniqueInput } from "../../whishlist/base/WhishlistWhereUniqueInput";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
@@ -48,11 +54,24 @@ export class ListingControllerBase {
   })
   async create(@common.Body() data: ListingCreateInput): Promise<Listing> {
     return await this.service.create({
-      data: data,
+      data: {
+        ...data,
+
+        listingCreatedBy: {
+          connect: data.listingCreatedBy,
+        },
+      },
       select: {
         createdAt: true,
+        description: true,
         id: true,
-        listingCreatedBy: true,
+
+        listingCreatedBy: {
+          select: {
+            id: true,
+          },
+        },
+
         locationData: true,
         locationType: true,
         mapData: true,
@@ -60,6 +79,8 @@ export class ListingControllerBase {
         placeAmeneties: true,
         placeSpace: true,
         placeType: true,
+        price: true,
+        title: true,
         updatedAt: true,
       },
     });
@@ -83,8 +104,15 @@ export class ListingControllerBase {
       ...args,
       select: {
         createdAt: true,
+        description: true,
         id: true,
-        listingCreatedBy: true,
+
+        listingCreatedBy: {
+          select: {
+            id: true,
+          },
+        },
+
         locationData: true,
         locationType: true,
         mapData: true,
@@ -92,6 +120,8 @@ export class ListingControllerBase {
         placeAmeneties: true,
         placeSpace: true,
         placeType: true,
+        price: true,
+        title: true,
         updatedAt: true,
       },
     });
@@ -116,8 +146,15 @@ export class ListingControllerBase {
       where: params,
       select: {
         createdAt: true,
+        description: true,
         id: true,
-        listingCreatedBy: true,
+
+        listingCreatedBy: {
+          select: {
+            id: true,
+          },
+        },
+
         locationData: true,
         locationType: true,
         mapData: true,
@@ -125,6 +162,8 @@ export class ListingControllerBase {
         placeAmeneties: true,
         placeSpace: true,
         placeType: true,
+        price: true,
+        title: true,
         updatedAt: true,
       },
     });
@@ -155,11 +194,24 @@ export class ListingControllerBase {
     try {
       return await this.service.update({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          listingCreatedBy: {
+            connect: data.listingCreatedBy,
+          },
+        },
         select: {
           createdAt: true,
+          description: true,
           id: true,
-          listingCreatedBy: true,
+
+          listingCreatedBy: {
+            select: {
+              id: true,
+            },
+          },
+
           locationData: true,
           locationType: true,
           mapData: true,
@@ -167,6 +219,8 @@ export class ListingControllerBase {
           placeAmeneties: true,
           placeSpace: true,
           placeType: true,
+          price: true,
+          title: true,
           updatedAt: true,
         },
       });
@@ -199,8 +253,15 @@ export class ListingControllerBase {
         where: params,
         select: {
           createdAt: true,
+          description: true,
           id: true,
-          listingCreatedBy: true,
+
+          listingCreatedBy: {
+            select: {
+              id: true,
+            },
+          },
+
           locationData: true,
           locationType: true,
           mapData: true,
@@ -208,6 +269,8 @@ export class ListingControllerBase {
           placeAmeneties: true,
           placeSpace: true,
           placeType: true,
+          price: true,
+          title: true,
           updatedAt: true,
         },
       });
@@ -219,5 +282,222 @@ export class ListingControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/trips")
+  @ApiNestedQuery(TripFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Trip",
+    action: "read",
+    possession: "any",
+  })
+  async findManyTrips(
+    @common.Req() request: Request,
+    @common.Param() params: ListingWhereUniqueInput
+  ): Promise<Trip[]> {
+    const query = plainToClass(TripFindManyArgs, request.query);
+    const results = await this.service.findTrips(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        id: true,
+
+        listing: {
+          select: {
+            id: true,
+          },
+        },
+
+        tripinfo: true,
+        updatedAt: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/trips")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async connectTrips(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: TripWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      trips: {
+        connect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/trips")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async updateTrips(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: TripWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      trips: {
+        set: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/trips")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectTrips(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: TripWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      trips: {
+        disconnect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/whishlists")
+  @ApiNestedQuery(WhishlistFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Whishlist",
+    action: "read",
+    possession: "any",
+  })
+  async findManyWhishlists(
+    @common.Req() request: Request,
+    @common.Param() params: ListingWhereUniqueInput
+  ): Promise<Whishlist[]> {
+    const query = plainToClass(WhishlistFindManyArgs, request.query);
+    const results = await this.service.findWhishlists(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        id: true,
+
+        listing: {
+          select: {
+            id: true,
+          },
+        },
+
+        updatedAt: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/whishlists")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async connectWhishlists(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: WhishlistWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      whishlists: {
+        connect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/whishlists")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async updateWhishlists(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: WhishlistWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      whishlists: {
+        set: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/whishlists")
+  @nestAccessControl.UseRoles({
+    resource: "Listing",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectWhishlists(
+    @common.Param() params: ListingWhereUniqueInput,
+    @common.Body() body: WhishlistWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      whishlists: {
+        disconnect: body,
+      },
+    };
+    await this.service.update({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }
