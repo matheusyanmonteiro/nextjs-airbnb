@@ -1,11 +1,13 @@
 import * as common from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import * as gqlACGuard from "../auth/gqlAC.guard";
 import { AuthService } from "./auth.service";
 import { GqlDefaultAuthGuard } from "./gqlDefaultAuth.guard";
 import { UserData } from "./userData.decorator";
-import { LoginArgs } from "./LoginArgs";
+import { CheckUserArgs, LoginArgs, SignUpArgs,  } from "./LoginArgs";
 import { UserInfo } from "./UserInfo";
+import { User } from "src/user/base/User";
+import { Request } from "express";
 
 @Resolver(UserInfo)
 export class AuthResolver {
@@ -13,6 +15,21 @@ export class AuthResolver {
   @Mutation(() => UserInfo)
   async login(@Args() args: LoginArgs): Promise<UserInfo> {
     return this.authService.login(args.credentials);
+  }
+
+  @Mutation(() => UserInfo)
+  async signUp(@Args() args: SignUpArgs) : Promise<UserInfo> {
+    return this.authService.signUp(args.credentials);
+  }
+
+  @Query(() => User)
+  async me(@Context('req') request: Request): Promise<User> {
+    return this.authService.me(request.headers.authorization);
+  }
+
+  @Query(() => User)
+  async checkUser(@Args() args: CheckUserArgs): Promise<User> {
+    return this.authService.checkUser(args.credentials.email);
   }
 
   @Query(() => UserInfo)
