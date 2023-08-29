@@ -1,11 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { IoMdClose } from "react-icons/io"
-import { FormInput } from "../common/FormInput"
-import { useAppStore } from "../../store/store"
+import { IoMdClose } from "react-icons/io";
+import { FormInput } from "../common/FormInput";
+import { useAppStore } from "../../store/store";
+import { checkUser, login, signUp } from "../../lib/auth";
  
 const AuthModal = () => {
-  const { setAuthModal } = useAppStore();
+  const { setAuthModal, setIsLoggedIn, setUserInfo } = useAppStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,15 +15,33 @@ const AuthModal = () => {
   const [userFound, setUserFound] = useState(null);
 
   const verifyEmail = async () => {
+    const data = await checkUser(email);
 
+    if (!data) {
+      setUserFound(false);
+    } else {
+      setUserFound(true);
+    }
   };
 
   const handleLogin = async () => {
-
+    if (email && password) {
+      const data = await login(email, password);
+      
+      setAuthModal();
+      setUserInfo(data);
+      setIsLoggedIn(true);
+    }
   };
 
   const handleSignUp = async () => {
+    if (email && password && firstName && lastName) {
+      const data = await signUp(email, password, firstName, lastName);
 
+      setAuthModal();
+      setUserInfo(data);
+      setIsLoggedIn(true);
+    }
   };
   
   return (
@@ -38,7 +57,11 @@ const AuthModal = () => {
               <span className="absolute left-5 cursor-pointer text-lg" onClick={() => setAuthModal()}>
                 <IoMdClose />
               </span>
-              <span>Log in or sing up</span>
+              {
+                userFound === null ?
+                <span>Log in or sing up</span> :
+                <span>{ userFound === true ? "Log in": "Sing up" } { email }</span>
+              }
             </div>
             <div className="p-5">
               <h3 className="text-xl pb-5">Welcome to AirBnb</h3>

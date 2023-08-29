@@ -8,7 +8,7 @@ import { ContextMenu } from "../common/ContextMenu";
 import { useAppStore } from "../../store/store";
 
 const Navbar = () => {
-  const { setAuthModal } = useAppStore()
+  const { setAuthModal, userInfo } = useAppStore()
 
   const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
 
@@ -61,9 +61,21 @@ const Navbar = () => {
               onClick={()=>setIsContextMenuVisible(true)}
             >
               <RxHamburgerMenu />
-              <span>
-                <Image src="/empty-profile.png" alt="profile" height={30} width={30} />
-              </span>
+              {
+                userInfo ? 
+                (
+                  <span className="flex justify-center items-center bg-black text-white h-7 w-7 text-sm rounded-full">
+                    { userInfo?.firstName?.split("").shift().toUpperCase() }
+                  </span>
+                ) 
+                :
+                (
+                  <span>
+                    <Image src="/empty-profile.png" alt="profile" height={30} width={30} />
+                  </span>
+                )
+
+              }
             </li>
           </ul>
         </div>
